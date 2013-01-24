@@ -1,9 +1,15 @@
 if (typeof(Site) == 'undefined'){
-	Local = {}
+	Site = {}
 }
 
 
 var Site = {
+	//scrollpane parts
+	scrollPane : $("#maincontent"), //window
+	scrollContent : $("#panelContainer"),
+	scrollbarElem : $("#scroller"),
+	scrollbar : new Object(),
+	
 	setupPanels : function(){
 		//create panels
 		var panelHTML = "<div class='panel'></div>";
@@ -11,11 +17,17 @@ var Site = {
 		var numPanels = 30;
 		for (var i = 0; i<numPanels; i++){
 			
-			(i == 0) ?
-				  wholeStr = wholeStr + "<div section='opening' class='panel'><button>ENTER</button></div>": wholeStr = wholeStr + panelHTML ;
-			
-			(i == 4) ?
-				  wholeStr = wholeStr + "<div section='intro' class='panel'></div>": wholeStr = wholeStr + panelHTML ;
+			switch (i) {
+			case  0 :
+				  wholeStr = wholeStr + "<div section='opening' class='panel'><button>ENTER</button></div>";
+				  break;			
+			case 4 :
+				  wholeStr = wholeStr + "<div section='intro' class='panel'></div>"		
+				  break;
+			default :
+				wholeStr = wholeStr +"<div class='panel'>"+i+"</div>";
+				break;
+			}
 		}
 		//add to DOM
 		$("#panelContainer").html(wholeStr);
@@ -31,67 +43,65 @@ var Site = {
 	},
 	
 	createCustomSlider : function (){
-		
-	    //scrollpane parts
-	    var scrollPane = $("#maincontent"), //window
-	      scrollContent = $("#panelContainer"),
-	      scrollbarElem = $("#scroller");
-	 
+
 	    //build slider
-	    var scrollbar = scrollbarElem.slider({
+	    Site.scrollbar = Site.scrollbarElem.slider({
 	      slide: function( event, ui ) {
-	        if ( scrollContent.width() > scrollPane.width() ) {
-	          scrollContent.css( "margin-left", Math.round(
-	            ui.value / 100 * ( scrollPane.width() - scrollContent.width() )
+	      	Site.calcDist();
+	        if ( Site.scrollContent.width() > Site.scrollPane.width() ) {
+	          Site.scrollContent.css( "margin-left", Math.round(
+	            ui.value / 100 * ( Site.scrollPane.width() - Site.scrollContent.width() )
 	          ) + "px" );
 	        } else {
-	          scrollContent.css( "margin-left", 0 );
+	          Site.scrollContent.css( "margin-left", 0 );
 	        }
-	      }
+	      },
+	      animate: true,
+	      step: 1
 	    });
 	 
 	    //append icon to handle
-	    var handleHelper = scrollbar.find( ".ui-slider-handle" )
+	    var handleHelper = Site.scrollbar.find( ".ui-slider-handle" )
 	    .mousedown(function() {
-	      scrollbar.width( handleHelper.width() );
+	      Site.scrollbar.width( handleHelper.width() );
 	    })
 	    .mouseup(function() {
-	      scrollbar.width( handleHelper.width() );
-	      //scrollbar.width( "100%");
+	      Site.scrollbar.width( handleHelper.width() );
+	      //Site.scrollbar.width( "100%");
 	    })
 	    .append( "<span class='ui-icon ui-icon-grip-dotted-vertical'></span>" )
 	    .wrap( "<div class='ui-handle-helper-parent'></div>" ).parent();
 	 
 	    //change overflow to hidden now that slider handles the scrolling
-	    scrollPane.css( "overflow", "hidden" );
+	    Site.scrollPane.css( "overflow", "hidden" );
 	 
 	    //size scrollbar and handle proportionally to scroll distance
 	    function sizeScrollbar() {
-	      var remainder = scrollContent.width() - scrollPane.width();
-	      var proportion = remainder / scrollContent.width();
-	      var handleSize = scrollPane.width() - ( proportion * scrollPane.width() );
-	      scrollbar.find( ".ui-slider-handle" ).css({
+	      var remainder = Site.scrollContent.width() - Site.scrollPane.width();
+	      var proportion = remainder / Site.scrollContent.width();
+	      var handleSize = Site.scrollPane.width() - ( proportion * Site.scrollPane.width() );
+	      Site.scrollbar.find( ".ui-slider-handle" ).css({
 	        width: handleSize,
 	        "margin-left": -handleSize / 2
 	      });
-	      handleHelper.width( "" ).width( scrollbar.width() - handleSize );
+	      //handleHelper.width( "" ).width( Site.scrollbar.width() - handleSize );
 	    }
 	 
 	    //reset slider value based on scroll content position
 	    function resetValue() {
-	      var remainder = scrollPane.width() - scrollContent.width();
-	      var leftVal = scrollContent.css( "margin-left" ) === "auto" ? 0 :
-	        parseInt( scrollContent.css( "margin-left" ) );
+	      var remainder = Site.scrollPane.width() - Site.scrollContent.width();
+	      var leftVal = Site.scrollContent.css( "margin-left" ) === "auto" ? 0 :
+	        parseInt( Site.scrollContent.css( "margin-left" ) );
 	      var percentage = Math.round( leftVal / remainder * 100 );
-	      scrollbar.slider( "value", percentage );
+	      Site.scrollbar.slider( "value", percentage );
 	    }
 	 
 	    //if the slider is 100% and window gets larger, reveal content
 	    function reflowContent() {
-	        var showing = scrollContent.width() + parseInt( scrollContent.css( "margin-left" ), 10 );
-	        var gap = scrollPane.width() - showing;
+	        var showing = Site.scrollContent.width() + parseInt( Site.scrollContent.css( "margin-left" ), 10 );
+	        var gap = Site.scrollPane.width() - showing;
 	        if ( gap > 0 ) {
-	          scrollContent.css( "margin-left", parseInt( scrollContent.css( "margin-left" ), 10 ) + gap );
+	          Site.scrollContent.css( "margin-left", parseInt( Site.scrollContent.css( "margin-left" ), 10 ) + gap );
 	        }
 	    }
 	 
@@ -103,6 +113,25 @@ var Site = {
 	    });
 	    //init scrollbar size
 	    setTimeout( sizeScrollbar, 10 );//safari wants a timeout
+   },
+   calcDist : function(){
+	var toggleIsUp = false;
+	var panelNeedsMenu = $(".panel[section=intro]");
+	//var toggleUp = panelNeedsMenu.offset().left;
+	//var toggleDown =  panelNeedsMenu.offset().left + panelNeedsMenu.width();
+	
+	var toggleStart = panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10);
+	var toggleEnd =panelNeedsMenu.position().left + panelNeedsMenu.width();
+	
+	if (toggleStart < $(window).width()+ parseInt(Site.scrollContent.css("margin-left"), 10) && toggleIsUp == false){ 
+		console.log("Toggle UP");
+		toggleIsUp = true;
+	}
+	if (toggleStart > $(window).width() || toggleEnd < parseInt(Site.scrollContent.css("margin-left"), 10) && toggleIsUp == true){ 
+		console.log("Toggle DOWN");
+		toggleIsUp = false;
+	}
+	//console.log("toggle end", toggleEnd);
    }
 }
 
@@ -113,14 +142,14 @@ $(document).ready(function(){
 	Site.createCustomSlider();
 	
 	//scrolling event listener
-	var toggleIsUp = false;
-	var panelNeedsMenu = $(".panel[section=intro]");
-	var toggleUp = panelNeedsMenu.offset().left
-	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
 	
-/*	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
+	$("#panelContainer").css("margin-left"); // -8800px
 	
-	$(scrollPane).scroll(function(){
+	
+	
+	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
+	
+	$(Site.scrollContent).scroll(function(){
 		//console.log("scrolling");
 		//panel with menu is in view
 		if($(scrollPane).scrollLeft() + $(scrollPane).width() >= toggleUp && $(scrollPane).scrollLeft() <= toggleDown && !toggleIsUp){
@@ -134,7 +163,7 @@ $(document).ready(function(){
 			toggleIsUp = false;
 		} 
 		
-	})*/
+	})
 });
 
 
