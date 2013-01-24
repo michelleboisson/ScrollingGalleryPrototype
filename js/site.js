@@ -33,7 +33,7 @@ var Site = {
 	createCustomSlider : function (){
 		
 	    //scrollpane parts
-	    var scrollPane = $(window),
+	    var scrollPane = $("#maincontent"), //window
 	      scrollContent = $("#panelContainer"),
 	      scrollbarElem = $("#scroller");
 	 
@@ -56,7 +56,8 @@ var Site = {
 	      scrollbar.width( handleHelper.width() );
 	    })
 	    .mouseup(function() {
-	      scrollbar.width( "100%" );
+	      scrollbar.width( handleHelper.width() );
+	      //scrollbar.width( "100%");
 	    })
 	    .append( "<span class='ui-icon ui-icon-grip-dotted-vertical'></span>" )
 	    .wrap( "<div class='ui-handle-helper-parent'></div>" ).parent();
