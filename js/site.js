@@ -114,24 +114,50 @@ var Site = {
 	    //init scrollbar size
 	    setTimeout( sizeScrollbar, 10 );//safari wants a timeout
    },
+   toggleIsUp : false,
    calcDist : function(){
-	var toggleIsUp = false;
+	
 	var panelNeedsMenu = $(".panel[section=intro]");
 	//var toggleUp = panelNeedsMenu.offset().left;
 	//var toggleDown =  panelNeedsMenu.offset().left + panelNeedsMenu.width();
 	
 	var toggleStart = panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10);
-	var toggleEnd =panelNeedsMenu.position().left + panelNeedsMenu.width();
+	var toggleEnd =panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10) + panelNeedsMenu.width();
 	
-	if (toggleStart < $(window).width()+ parseInt(Site.scrollContent.css("margin-left"), 10) && toggleIsUp == false){ 
+	if ((toggleStart < $(window).width() && toggleEnd > 0 ) && Site.toggleIsUp == false){ 
 		console.log("Toggle UP");
-		toggleIsUp = true;
+		$("footer").animate({ height: '5em' }, 500 );
+		Site.toggleIsUp = true;
 	}
-	if (toggleStart > $(window).width() || toggleEnd < parseInt(Site.scrollContent.css("margin-left"), 10) && toggleIsUp == true){ 
+	if ((toggleStart > $(window).width() || toggleEnd < 0 ) && Site.toggleIsUp == true){ 
 		console.log("Toggle DOWN");
-		toggleIsUp = false;
+		$("footer").animate({ height: '3em' }, 500 );
+		Site.toggleIsUp = false;
 	}
 	//console.log("toggle end", toggleEnd);
+	
+//------------------------------------------------------	
+/*scrolling event listener
+	var toggleIsUp = false;
+	var panelNeedsMenu = $(".panel[section=intro]");
+	var toggleUp = panelNeedsMenu.offset().left
+	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
+	
+	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
+	
+	$(scrollPane).scroll(function(){
+		//console.log("scrolling");
+		//panel with menu is in view
+		if($(scrollPane).scrollLeft() + $(scrollPane).width() >= toggleUp && $(scrollPane).scrollLeft() <= toggleDown && !toggleIsUp){
+			console.log("toggle UP");
+			$("footer").animate({ height: '5em' }, 500 );
+			toggleIsUp = true;
+		} 
+		if((toggleUp > $(scrollPane).scrollLeft() + $(scrollPane).width() && toggleIsUp) || ($(scrollPane).scrollLeft() >= toggleDown && toggleIsUp)){
+			console.log("toggle DOWN");
+			$("footer").animate({ height: '3em' }, 500 );
+			toggleIsUp = false;
+*/	
    }
 }
 
