@@ -10,34 +10,114 @@ var Site = {
 		var wholeStr = "";
 		var numPanels = 30;
 		for (var i = 0; i<numPanels; i++){
+			
+			(i == 0) ?
+				  wholeStr = wholeStr + "<div section='opening' class='panel'><button>ENTER</button></div>": wholeStr = wholeStr + panelHTML ;
+			
 			(i == 4) ?
 				  wholeStr = wholeStr + "<div section='intro' class='panel'></div>": wholeStr = wholeStr + panelHTML ;
 		}
+		//add to DOM
 		$("#panelContainer").html(wholeStr);
 		
 		var marg = $(".panel").css("margin-right");
 		marg = parseInt(marg.slice(0, marg.indexOf("p")));
 	
-		//calculate width of panelContainer
+		//calculate width of panelContainer, adding the marg(margin)
 		var width = $(".panel").length * ($(".panel").width() + marg);
 		
 		//set the width
 		$('#panelContainer').css('width', width);
-	}
+	},
+	
+	createCustomSlider : function (){
+		
+	    //scrollpane parts
+	    var scrollPane = $(window),
+	      scrollContent = $("#panelContainer"),
+	      scrollbarElem = $("#scroller");
+	 
+	    //build slider
+	    var scrollbar = scrollbarElem.slider({
+	      slide: function( event, ui ) {
+	        if ( scrollContent.width() > scrollPane.width() ) {
+	          scrollContent.css( "margin-left", Math.round(
+	            ui.value / 100 * ( scrollPane.width() - scrollContent.width() )
+	          ) + "px" );
+	        } else {
+	          scrollContent.css( "margin-left", 0 );
+	        }
+	      }
+	    });
+	 
+	    //append icon to handle
+	    var handleHelper = scrollbar.find( ".ui-slider-handle" )
+	    .mousedown(function() {
+	      scrollbar.width( handleHelper.width() );
+	    })
+	    .mouseup(function() {
+	      scrollbar.width( "100%" );
+	    })
+	    .append( "<span class='ui-icon ui-icon-grip-dotted-vertical'></span>" )
+	    .wrap( "<div class='ui-handle-helper-parent'></div>" ).parent();
+	 
+	    //change overflow to hidden now that slider handles the scrolling
+	    scrollPane.css( "overflow", "hidden" );
+	 
+	    //size scrollbar and handle proportionally to scroll distance
+	    function sizeScrollbar() {
+	      var remainder = scrollContent.width() - scrollPane.width();
+	      var proportion = remainder / scrollContent.width();
+	      var handleSize = scrollPane.width() - ( proportion * scrollPane.width() );
+	      scrollbar.find( ".ui-slider-handle" ).css({
+	        width: handleSize,
+	        "margin-left": -handleSize / 2
+	      });
+	      handleHelper.width( "" ).width( scrollbar.width() - handleSize );
+	    }
+	 
+	    //reset slider value based on scroll content position
+	    function resetValue() {
+	      var remainder = scrollPane.width() - scrollContent.width();
+	      var leftVal = scrollContent.css( "margin-left" ) === "auto" ? 0 :
+	        parseInt( scrollContent.css( "margin-left" ) );
+	      var percentage = Math.round( leftVal / remainder * 100 );
+	      scrollbar.slider( "value", percentage );
+	    }
+	 
+	    //if the slider is 100% and window gets larger, reveal content
+	    function reflowContent() {
+	        var showing = scrollContent.width() + parseInt( scrollContent.css( "margin-left" ), 10 );
+	        var gap = scrollPane.width() - showing;
+	        if ( gap > 0 ) {
+	          scrollContent.css( "margin-left", parseInt( scrollContent.css( "margin-left" ), 10 ) + gap );
+	        }
+	    }
+	 
+	    //change handle position on window resize
+	    $( window ).resize(function() {
+	      resetValue();
+	      sizeScrollbar();
+	      reflowContent();
+	    });
+	    //init scrollbar size
+	    setTimeout( sizeScrollbar, 10 );//safari wants a timeout
+   }
 }
 
 
 $(document).ready(function(){
 
 	Site.setupPanels();
-
+	Site.createCustomSlider();
+	
 	//scrolling event listener
 	var toggleIsUp = false;
 	var panelNeedsMenu = $(".panel[section=intro]");
 	var toggleUp = panelNeedsMenu.offset().left
 	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
 	
-	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
+/*	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
 	
 	$(scrollPane).scroll(function(){
 		//console.log("scrolling");
@@ -53,120 +133,10 @@ $(document).ready(function(){
 			toggleIsUp = false;
 		} 
 		
-	})
+	})*/
 });
 
-/* 
-        
-//Slider Functions - http://jqueryui.com/slider/#side-scroll
- $(function() {
-    //scrollpane parts
-    var scrollPane = $( window ),
-      scrollContent = $( "#panelContainer" );
-  
- var slideHandler = function( event, ui ) {
- 
- 		console.log(event, ui);
-        if ( scrollContent.width() > scrollPane.width() ) {
-          scrollContent.css( "margin-left", Math.round(
-            ui.value / 100 * ( scrollPane.width() - scrollContent.width() )
-          ) + "px" );
-        } else {
-          scrollContent.css( "margin-left", 0 );
-        }
-       	//scrolling event listener
-	var toggleIsUp = false;
-	var panelNeedsMenu = $(".panel[section=intro]");
-	var toggleUp = panelNeedsMenu.offset().left
-	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
-	
-	$("#maincontent").scroll(function(){
-		console.log("scrolling");
-		//panel with menu is in view
-		if($("#maincontent").scrollLeft() + $("#maincontent").width() >= toggleUp && $("#maincontent").scrollLeft() <= toggleDown && !toggleIsUp){
-			console.log("toggle UP");
-			$("footer").animate({ height: '5em' }, 500 );
-			toggleIsUp = true;
-		} 
-		if((toggleUp > $("#maincontent").scrollLeft() + $("#maincontent").width() && toggleIsUp) || ($("#maincontent").scrollLeft() >= toggleDown && toggleIsUp)){
-			console.log("toggle DOWN");
-			$("footer").animate({ height: '3em' }, 500 );
-			toggleIsUp = false;
-		} 
-		
-	})
-        
-     
-        
-        
-      }
-    //build slider
-    var scrollbar = $( "#scroller" ).slider({
-      slide: slideHandler 
-    });
 
-    
-    //append icon to handle
-    var handleHelper = scrollbar.find( ".ui-slider-handle" )
-    .mousedown(function() {
-      scrollbar.width( handleHelper.width() );
-    })
-    .mouseup(function() {
-      scrollbar.width( "100%" );
-    })
-    .append( "<span class='ui-icon ui-icon-grip-dotted-vertical'></span>" )
-    .wrap( "<div class='ui-handle-helper-parent'></div>" ).parent();
- 
-    //change overflow to hidden now that slider handles the scrolling
-    scrollPane.css( "overflow", "hidden" );
- 
-    //size scrollbar and handle proportionally to scroll distance
-    function sizeScrollbar() {
-      var remainder = scrollContent.width() - scrollPane.width();
-      var proportion = remainder / scrollContent.width();
-      var handleSize = scrollPane.width() - ( proportion * scrollPane.width() );
-      scrollbar.find( ".ui-slider-handle" ).css({
-        width: handleSize,
-        "margin-left": -handleSize / 2
-      });
-      handleHelper.width( "" ).width( (scrollbar.width() - handleSize)  );
-    }
- 
-    //reset slider value based on scroll content position
-    function resetValue() {
-      var remainder = scrollPane.width() - scrollContent.width();
-      var leftVal = scrollContent.css( "margin-left" ) === "auto" ? 0 :
-        parseInt( scrollContent.css( "margin-left" ) );
-      var percentage = Math.round( leftVal / remainder * 100 );
-      scrollbar.slider( "value", percentage );
-    }
- 
-    //if the slider is 100% and window gets larger, reveal content
-    function reflowContent() {
-        var showing = scrollContent.width() + parseInt( scrollContent.css( "margin-left" ), 10 );
-        var gap = scrollPane.width() - showing;
-        if ( gap > 0 ) {
-          scrollContent.css( "margin-left", parseInt( scrollContent.css( "margin-left" ), 10 ) + gap );
-        }
-    }
- 
-    //change handle position on window resize
-    $( window ).resize(function() {
-      resetValue();
-      sizeScrollbar();
-      reflowContent();
-    });
-    //init scrollbar size
-    setTimeout( sizeScrollbar, 10 );//safari wants a timeout
-    
-    
-    
-  });
-  
-  
-   */   
-       
-    
 
 /*! Copyright (c) 2011 Brandon Aaron (http://brandonaaron.net)
  * Licensed under the MIT License (LICENSE.txt).
