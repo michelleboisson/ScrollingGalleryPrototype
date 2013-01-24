@@ -21,7 +21,7 @@ var Site = {
 			case  0 :
 				  wholeStr = wholeStr + "<div section='opening' class='panel'><button>ENTER</button></div>";
 				  break;			
-			case 4 :
+			case 1 :
 				  wholeStr = wholeStr + "<div section='intro' class='panel'></div>"		
 				  break;
 			default :
@@ -41,21 +41,25 @@ var Site = {
 		//set the width
 		$('#panelContainer').css('width', width);
 	},
-	
-	createCustomSlider : function (){
-
-	    //build slider
-	    Site.scrollbar = Site.scrollbarElem.slider({
-	      slide: function( event, ui ) {
+	doTheSlide : function( event, value ) {
 	      	Site.calcDist();
 	        if ( Site.scrollContent.width() > Site.scrollPane.width() ) {
 	          Site.scrollContent.css( "margin-left", Math.round(
-	            ui.value / 100 * ( Site.scrollPane.width() - Site.scrollContent.width() )
+	            value / 100 * ( Site.scrollPane.width() - Site.scrollContent.width() )
 	          ) + "px" );
 	        } else {
 	          Site.scrollContent.css( "margin-left", 0 );
 	        }
 	      },
+	
+	createCustomSlider : function (){
+
+	    //build slider
+	    Site.scrollbar = Site.scrollbarElem.slider({
+	      slide: function(event, ui){
+	      			console.log(ui.value)
+	      			Site.doTheSlide(event, ui.value)
+	      		},
 	      animate: true,
 	      step: 1
 	    });
@@ -113,52 +117,67 @@ var Site = {
 	    });
 	    //init scrollbar size
 	    setTimeout( sizeScrollbar, 10 );//safari wants a timeout
+	    
+	    //bind scrollwheel event
+	    //THIS IS NOT WORKING YET
+	    
+	    $(window).bind('mousewheel DOMMouseScroll', function(e){
+		    console.log("mouse scrolling", e.originalEvent.wheelDelta);
+		    Site.doTheSlide(e, e.originalEvent.wheelDelta/100)
+	    })
+	    
+	    Site.scrollbar.bind('mousewheel DOMMouseScroll', function (e) {
+	    	console.log("mouse is a scrollin", e);
+	    	Site.doTheSlide(e, ui)
+		    var delta = 0, element = $(this), value, result;
+		    value = element.slider('value');
+		
+		    if (e.wheelDelta) {
+		        delta = -e.wheelDelta;
+		    }
+		    if (e.detail) {
+		        delta = e.detail * 40;
+		    }
+		
+		    value -= delta / 8;
+		    if (value > 100) {
+		        value = 100;
+		    }
+		    if (value < 0) {
+		        value = 0;
+		    }
+		
+		    result = element.slider('option', 'slide').call(element, e, { value: value });
+		    if (result !== false) {
+		        element.slider('value', value);
+		    }
+		    return false;
+		});
+	    
+	    
+	    
    },
    toggleIsUp : false,
    calcDist : function(){
-	
-	var panelNeedsMenu = $(".panel[section=intro]");
-	//var toggleUp = panelNeedsMenu.offset().left;
-	//var toggleDown =  panelNeedsMenu.offset().left + panelNeedsMenu.width();
-	
-	var toggleStart = panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10);
-	var toggleEnd =panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10) + panelNeedsMenu.width();
-	
-	if ((toggleStart < $(window).width() && toggleEnd > 0 ) && Site.toggleIsUp == false){ 
-		console.log("Toggle UP");
-		$("footer").animate({ height: '5em' }, 500 );
-		Site.toggleIsUp = true;
-	}
-	if ((toggleStart > $(window).width() || toggleEnd < 0 ) && Site.toggleIsUp == true){ 
-		console.log("Toggle DOWN");
-		$("footer").animate({ height: '3em' }, 500 );
-		Site.toggleIsUp = false;
-	}
-	//console.log("toggle end", toggleEnd);
-	
-//------------------------------------------------------	
-/*scrolling event listener
-	var toggleIsUp = false;
-	var panelNeedsMenu = $(".panel[section=intro]");
-	var toggleUp = panelNeedsMenu.offset().left
-	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
-	
-	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
-	
-	$(scrollPane).scroll(function(){
-		//console.log("scrolling");
-		//panel with menu is in view
-		if($(scrollPane).scrollLeft() + $(scrollPane).width() >= toggleUp && $(scrollPane).scrollLeft() <= toggleDown && !toggleIsUp){
-			console.log("toggle UP");
+		var panelNeedsMenu = $(".panel[section=intro]");
+		//var toggleUp = panelNeedsMenu.offset().left;
+		//var toggleDown =  panelNeedsMenu.offset().left + panelNeedsMenu.width();
+		
+		var toggleStart = panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10);
+		var toggleEnd =panelNeedsMenu.position().left + parseInt(Site.scrollContent.css("margin-left"), 10) + panelNeedsMenu.width();
+		
+		if ((toggleStart < $(window).width() && toggleEnd > 0 ) && Site.toggleIsUp == false){ 
+			console.log("Toggle UP");
 			$("footer").animate({ height: '5em' }, 500 );
-			toggleIsUp = true;
-		} 
-		if((toggleUp > $(scrollPane).scrollLeft() + $(scrollPane).width() && toggleIsUp) || ($(scrollPane).scrollLeft() >= toggleDown && toggleIsUp)){
-			console.log("toggle DOWN");
+			Site.toggleIsUp = true;
+		}
+		if ((toggleStart > $(window).width() || toggleEnd < 0 ) && Site.toggleIsUp == true){ 
+			console.log("Toggle DOWN");
 			$("footer").animate({ height: '3em' }, 500 );
-			toggleIsUp = false;
-*/	
+			Site.toggleIsUp = false;
+		}
    }
+   
 }
 
 
@@ -189,6 +208,15 @@ $(document).ready(function(){
 			toggleIsUp = false;
 		} 
 		
+	})
+	
+	$(".panel[section=opening] button").live("click", function(){
+		var newPosition = $(".panel:nth-child(2)").position().left;
+		Site.scrollContent.animate({"margin-left": -newPosition}, 700);
+		$("footer").animate({ height: '5em' }, 500 );
+		
+		//also move scrollbar!!!
+				
 	})
 });
 
