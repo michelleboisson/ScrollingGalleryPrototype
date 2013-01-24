@@ -1,35 +1,46 @@
+if (typeof(Site) == 'undefined'){
+	Local = {}
+}
+
+
+var Site = {
+	setupPanels : function(){
+		//create panels
+		var panelHTML = "<div class='panel'></div>";
+		var wholeStr = "";
+		var numPanels = 30;
+		for (var i = 0; i<numPanels; i++){
+			(i == 4) ?
+				  wholeStr = wholeStr + "<div section='intro' class='panel'></div>": wholeStr = wholeStr + panelHTML ;
+		}
+		$("#panelContainer").html(wholeStr);
+		
+		var marg = $(".panel").css("margin-right");
+		marg = parseInt(marg.slice(0, marg.indexOf("p")));
+	
+		//calculate width of panelContainer
+		var width = $(".panel").length * ($(".panel").width() + marg);
+		
+		//set the width
+		$('#panelContainer').css('width', width);
+	}
+}
+
 
 $(document).ready(function(){
 
-	//create panels
-	var panelHTML = "<div class='panel'></div>";
-	var wholeStr = "";
-	var numPanels = 30;
-	for (var i = 0; i<numPanels; i++){
-		(i == 4) ?
-			  wholeStr = wholeStr + "<div section='intro' class='panel'></div>": wholeStr = wholeStr + panelHTML ;
-	}
-	$("#panelContainer").html(wholeStr);
-	
-	var marg = $(".panel").css("margin-right");
-	marg = parseInt(marg.slice(0, marg.indexOf("p")));
+	Site.setupPanels();
 
-	//calculate width of panelContainer
-	var width = $(".panel").length * ($(".panel").width() + marg);
-	
-	//set the width
-	$('#panelContainer').css('width', width);
-
-//scrolling event listener
+	//scrolling event listener
 	var toggleIsUp = false;
 	var panelNeedsMenu = $(".panel[section=intro]");
 	var toggleUp = panelNeedsMenu.offset().left
 	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
 	
-	var scrollPane = window; // or "#maincontent"
+	var scrollPane = window; // or  "#panelContainer" or "#maincontent"
 	
 	$(scrollPane).scroll(function(){
-		console.log("scrolling");
+		//console.log("scrolling");
 		//panel with menu is in view
 		if($(scrollPane).scrollLeft() + $(scrollPane).width() >= toggleUp && $(scrollPane).scrollLeft() <= toggleDown && !toggleIsUp){
 			console.log("toggle UP");
@@ -43,45 +54,14 @@ $(document).ready(function(){
 		} 
 		
 	})
+});
 
-
-
-/* Works with broswer scrollbar	
-	//scrolling event listener
-	var toggleIsUp = false;
-	var panelNeedsMenu = $(".panel[section=intro]");
-	var toggleUp = panelNeedsMenu.offset().left
-	var toggleDown = panelNeedsMenu.offset().left + panelNeedsMenu.width();
-	
-	$("#maincontent").scroll(function(){
-		console.log("scrolling");
-		//panel with menu is in view
-		if($("#maincontent").scrollLeft() + $("#maincontent").width() >= toggleUp && $("#maincontent").scrollLeft() <= toggleDown && !toggleIsUp){
-			console.log("toggle UP");
-			$("footer").animate({ height: '5em' }, 500 );
-			toggleIsUp = true;
-		} 
-		if((toggleUp > $("#maincontent").scrollLeft() + $("#maincontent").width() && toggleIsUp) || ($("#maincontent").scrollLeft() >= toggleDown && toggleIsUp)){
-			console.log("toggle DOWN");
-			$("footer").animate({ height: '3em' }, 500 );
-			toggleIsUp = false;
-		} 
-		
-	})
-*/
-	
-	 //$( "#scroller" ).slider();
-	
-}); //end document ready
-
-
-
-/*
-
+/* 
+        
 //Slider Functions - http://jqueryui.com/slider/#side-scroll
  $(function() {
     //scrollpane parts
-    var scrollPane = $( "#maincontent" ),
+    var scrollPane = $( window ),
       scrollContent = $( "#panelContainer" );
   
  var slideHandler = function( event, ui ) {
@@ -94,8 +74,7 @@ $(document).ready(function(){
         } else {
           scrollContent.css( "margin-left", 0 );
         }
-        
-        	//scrolling event listener
+       	//scrolling event listener
 	var toggleIsUp = false;
 	var panelNeedsMenu = $(".panel[section=intro]");
 	var toggleUp = panelNeedsMenu.offset().left
@@ -117,8 +96,7 @@ $(document).ready(function(){
 		
 	})
         
-        
-        
+     
         
         
       }
@@ -186,8 +164,9 @@ $(document).ready(function(){
   });
   
   
-  
-    */
+   */   
+       
+    
 
 /*! Copyright (c) 2011 Brandon Aaron (http://brandonaaron.net)
  * Licensed under the MIT License (LICENSE.txt).
