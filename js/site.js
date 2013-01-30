@@ -3,6 +3,47 @@ if (typeof(Site) == 'undefined'){
 }
 
 
+if (typeof(Scroller) == 'undefined'){
+	Scroller = {}
+}
+
+
+var Scroller = {
+	handlebarElem : $(""),
+	menuElem : $(""),
+	
+	init : function(){
+		console.log("--Scroller.init fired");
+		//set up the scrollbar
+		// make handle bar draggable
+	},
+	
+	
+	menu : {
+		elem : Scroller.menuElem,
+		moveUp : function(){
+			console.log("----Scroller.menu.moveUp fired");
+		},
+		moveDown : function(){
+			console.log("----Scroller.menu.moveDown fired");
+		}
+	},
+	
+	handlebarDrag : {
+		
+		start : function(e){
+			console.log("--handlebarDrag.start launched");
+		},
+		off : function(e){
+			console.log("--handlebarDrag.off launched");
+		}
+	}
+	
+}
+
+
+
+
 var Site = {
 	//scrollpane parts
 	scrollPane : $("#maincontent"), //window
@@ -181,12 +222,29 @@ var Site = {
 }
 
 
+
+
+
+
+
+
+
 $(document).ready(function(){
 
+	//handle event listeners
+	Scroller.handlebarElem.addEventListener('dragstart', Scroller.handlebarDrag.start, false);
+/*	Scroller.handlebarElem.addEventListener('drag', Scroller.handlebarDrag.drag, false);
+	Scroller.handlebarElem.addEventListener('dragenter', Scroller.handlebarDrag.enter, false);
+	Scroller.handlebarElem.addEventListener('dragleave', Scroller.handlebarDrag.leave, false);
+	Scroller.handlebarElem.addEventListener('dragover', Scroller.handlebarDrag.over, false);
+	Scroller.handlebarElem.addEventListener('drop', Scroller.handlebarDrag.drop, false);
+	Scroller.handlebarElem.addEventListener('dragend', Scroller.handlebarDrag.end, false);
+*/
+
+
+/*
 	Site.setupPanels();
 	Site.createCustomSlider();
-	
-	//scrolling event listener
 	
 	$("#panelContainer").css("margin-left"); // -8800px
 	
@@ -218,6 +276,7 @@ $(document).ready(function(){
 		//also move scrollbar!!!
 				
 	})
+	*/
 });
 
 
